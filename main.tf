@@ -1,3 +1,4 @@
+# Produces the AzAPI resource inputs for supported AVM lock and RBAC interfaces.
 module "avm_interfaces" {
   source  = "Azure/avm-utl-interfaces/azure"
   version = "~> 0.6"

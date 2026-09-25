@@ -69,7 +69,7 @@ variable "scopes" {
 
 variable "action_groups" {
   type = list(object({
-    action_group_id     = string
+    action_group_id    = string
     webhook_properties = optional(map(string), null)
   }))
   default     = []
