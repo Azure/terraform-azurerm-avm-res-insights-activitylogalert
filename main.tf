@@ -20,7 +20,7 @@ resource "azapi_resource" "this" {
     properties = merge({
       actions = {
         actionGroups = [
-          for action_group in var.action_groups : merge(
+          for action_group in values(var.action_groups) : merge(
             {
               actionGroupId = action_group.action_group_id
             },

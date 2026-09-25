@@ -68,13 +68,13 @@ variable "scopes" {
 }
 
 variable "action_groups" {
-  type = list(object({
+  type = map(object({
     action_group_id    = string
     webhook_properties = optional(map(string), null)
   }))
-  default     = []
+  default     = {}
   nullable    = false
-  description = "The action groups invoked when the alert activates, with optional webhook properties."
+  description = "A map of action groups invoked when the alert activates, with optional webhook properties. The map key is arbitrary to support unknown values at plan time."
 
   validation {
     condition = alltrue([

@@ -45,17 +45,49 @@ run "serializes_action_groups" {
         equals = "Administrative"
       }]
     }
-    action_groups = [{
-      action_group_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/activity-log-alert-rg/providers/Microsoft.Insights/actionGroups/activity-log-alert-action-group"
-      webhook_properties = {
-        severity = "high"
+    action_groups = {
+      primary = {
+        action_group_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/activity-log-alert-rg/providers/Microsoft.Insights/actionGroups/activity-log-alert-action-group"
+        webhook_properties = {
+          severity = "high"
+        }
       }
-    }]
+    }
   }
 
   assert {
     condition     = azapi_resource.this.body.properties.actions.actionGroups[0].actionGroupId == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/activity-log-alert-rg/providers/Microsoft.Insights/actionGroups/activity-log-alert-action-group"
     error_message = "Action group IDs must be passed to the ARM body."
+  }
+}
+
+run "serializes_description_and_tags" {
+  command = plan
+
+  variables {
+    name      = "activity-log-alert"
+    parent_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/activity-log-alert-rg"
+    scopes    = ["/subscriptions/00000000-0000-0000-0000-000000000000"]
+    description = "Alert on administrative events."
+    tags = {
+      environment = "test"
+    }
+    condition = {
+      all_of = [{
+        field  = "category"
+        equals = "Administrative"
+      }]
+    }
+  }
+
+  assert {
+    condition     = azapi_resource.this.body.properties.description == "Alert on administrative events."
+    error_message = "The description must be passed to the ARM body."
+  }
+
+  assert {
+    condition     = azapi_resource.this.tags.environment == "test"
+    error_message = "Tags must be passed to the Activity Log Alert."
   }
 }
 
@@ -156,9 +188,11 @@ run "rejects_invalid_action_group_id" {
         equals = "Administrative"
       }]
     }
-    action_groups = [{
-      action_group_id = "invalid"
-    }]
+    action_groups = {
+      invalid = {
+        action_group_id = "invalid"
+      }
+    }
   }
 
   expect_failures = [var.action_groups]
