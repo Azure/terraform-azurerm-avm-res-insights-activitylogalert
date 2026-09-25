@@ -59,6 +59,35 @@ run "serializes_action_groups" {
   }
 }
 
+run "serializes_any_of_conditions" {
+  command = plan
+
+  variables {
+    name      = "activity-log-alert"
+    parent_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/activity-log-alert-rg"
+    scopes    = ["/subscriptions/00000000-0000-0000-0000-000000000000"]
+    condition = {
+      all_of = [{
+        any_of = [
+          {
+            field  = "category"
+            equals = "Administrative"
+          },
+          {
+            field        = "status"
+            contains_any = ["Failed", "Succeeded"]
+          },
+        ]
+      }]
+    }
+  }
+
+  assert {
+    condition     = azapi_resource.this.body.properties.condition.allOf[0].anyOf[1].containsAny[1] == "Succeeded"
+    error_message = "Nested any-of conditions must be serialized to the ARM body."
+  }
+}
+
 run "rejects_invalid_parent_id" {
   command = plan
 
@@ -75,6 +104,29 @@ run "rejects_invalid_parent_id" {
   }
 
   expect_failures = [var.parent_id]
+}
+
+run "rejects_invalid_any_of_condition" {
+  command = plan
+
+  variables {
+    name      = "activity-log-alert"
+    parent_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/activity-log-alert-rg"
+    scopes    = ["/subscriptions/00000000-0000-0000-0000-000000000000"]
+    condition = {
+      all_of = [{
+        any_of = [{
+          field  = "category"
+          equals = "Administrative"
+          contains_any = [
+            "ServiceHealth",
+          ]
+        }]
+      }]
+    }
+  }
+
+  expect_failures = [var.condition]
 }
 
 run "creates_optional_interfaces" {
