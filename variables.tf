@@ -39,10 +39,15 @@ DESCRIPTION
   validation {
     condition = length(var.condition.all_of) > 0 && alltrue([
       for condition in var.condition.all_of :
-      length(condition.any_of) > 0 ? alltrue([
-        for any_of_condition in condition.any_of :
-        (any_of_condition.equals != null) != (length(any_of_condition.contains_any) > 0)
-      ]) : (
+      length(condition.any_of) > 0 ? (
+        condition.field == null &&
+        condition.equals == null &&
+        length(condition.contains_any) == 0 &&
+        alltrue([
+          for any_of_condition in condition.any_of :
+          (any_of_condition.equals != null) != (length(any_of_condition.contains_any) > 0)
+        ])
+      ) : (
         condition.field != null &&
         ((condition.equals != null) != (length(condition.contains_any) > 0))
       )

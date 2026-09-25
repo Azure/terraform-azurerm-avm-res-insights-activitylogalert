@@ -76,3 +76,38 @@ run "rejects_invalid_parent_id" {
 
   expect_failures = [var.parent_id]
 }
+
+run "creates_optional_interfaces" {
+  command = plan
+
+  variables {
+    name      = "activity-log-alert"
+    parent_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/activity-log-alert-rg"
+    scopes    = ["/subscriptions/00000000-0000-0000-0000-000000000000"]
+    condition = {
+      all_of = [{
+        field  = "category"
+        equals = "Administrative"
+      }]
+    }
+    lock = {
+      kind = "CanNotDelete"
+    }
+    role_assignments = {
+      reader = {
+        principal_id               = "00000000-0000-0000-0000-000000000000"
+        role_definition_id_or_name = "Reader"
+      }
+    }
+  }
+
+  assert {
+    condition     = length(azapi_resource.lock) == 1
+    error_message = "The lock interface must create an AzAPI lock."
+  }
+
+  assert {
+    condition     = length(azapi_resource.role_assignments) == 1
+    error_message = "The role assignment interface must create an AzAPI role assignment."
+  }
+}

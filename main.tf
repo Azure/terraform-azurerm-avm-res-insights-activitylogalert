@@ -16,7 +16,7 @@ resource "azapi_resource" "this" {
   tags      = var.tags
 
   body = {
-    properties = {
+    properties = merge({
       actions = {
         actionGroups = [
           for action_group in var.action_groups : merge(
@@ -50,10 +50,11 @@ resource "azapi_resource" "this" {
           )
         ]
       }
-      description = var.description
-      enabled     = var.enabled
-      scopes      = var.scopes
-    }
+      enabled = var.enabled
+      scopes  = var.scopes
+      },
+      var.description == null ? {} : { description = var.description }
+    )
   }
 
   ignore_body_changes    = length(var.ignore_body_changes.insights_activity_log_alerts) > 0 ? var.ignore_body_changes.insights_activity_log_alerts : null
