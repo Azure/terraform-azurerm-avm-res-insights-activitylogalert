@@ -164,9 +164,9 @@ variable "tags" {
 
 variable "resource_types" {
   type = object({
-    insights_activity_log_alerts      = optional(string, "Microsoft.Insights/activityLogAlerts@2020-10-01")
-    authorization_locks               = optional(string, "Microsoft.Authorization/locks@2020-05-01")
-    authorization_role_assignments    = optional(string, "Microsoft.Authorization/roleAssignments@2022-04-01")
+    insights_activity_log_alerts   = optional(string, "Microsoft.Insights/activityLogAlerts@2020-10-01")
+    authorization_locks            = optional(string, "Microsoft.Authorization/locks@2020-05-01")
+    authorization_role_assignments = optional(string, "Microsoft.Authorization/roleAssignments@2022-04-01")
   })
   default     = {}
   nullable    = false

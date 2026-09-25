@@ -106,6 +106,64 @@ run "rejects_invalid_parent_id" {
   expect_failures = [var.parent_id]
 }
 
+run "rejects_unsupported_location" {
+  command = plan
+
+  variables {
+    name      = "activity-log-alert"
+    parent_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/activity-log-alert-rg"
+    location  = "eastus"
+    scopes    = ["/subscriptions/00000000-0000-0000-0000-000000000000"]
+    condition = {
+      all_of = [{
+        field  = "category"
+        equals = "Administrative"
+      }]
+    }
+  }
+
+  expect_failures = [var.location]
+}
+
+run "rejects_empty_scopes" {
+  command = plan
+
+  variables {
+    name      = "activity-log-alert"
+    parent_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/activity-log-alert-rg"
+    scopes    = []
+    condition = {
+      all_of = [{
+        field  = "category"
+        equals = "Administrative"
+      }]
+    }
+  }
+
+  expect_failures = [var.scopes]
+}
+
+run "rejects_invalid_action_group_id" {
+  command = plan
+
+  variables {
+    name      = "activity-log-alert"
+    parent_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/activity-log-alert-rg"
+    scopes    = ["/subscriptions/00000000-0000-0000-0000-000000000000"]
+    condition = {
+      all_of = [{
+        field  = "category"
+        equals = "Administrative"
+      }]
+    }
+    action_groups = [{
+      action_group_id = "invalid"
+    }]
+  }
+
+  expect_failures = [var.action_groups]
+}
+
 run "rejects_invalid_any_of_condition" {
   command = plan
 

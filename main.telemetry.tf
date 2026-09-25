@@ -51,6 +51,5 @@ locals {
     avm_module_version = one(data.modtm_module_source.telemetry).module_version
   })
 
-  # tflint-ignore: terraform_unused_declarations
   avm_azapi_header = join(" ", [for key, value in local.avm_azapi_headers : "${key}=${value}"])
 }
