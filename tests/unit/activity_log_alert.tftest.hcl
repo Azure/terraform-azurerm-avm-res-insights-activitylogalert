@@ -91,6 +91,38 @@ run "serializes_description_and_tags" {
   }
 }
 
+run "propagates_retry_and_timeouts" {
+  command = plan
+
+  variables {
+    name      = "activity-log-alert"
+    parent_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/activity-log-alert-rg"
+    scopes    = ["/subscriptions/00000000-0000-0000-0000-000000000000"]
+    condition = {
+      all_of = [{
+        field  = "category"
+        equals = "Administrative"
+      }]
+    }
+    retry = {
+      interval_seconds = 10
+    }
+    timeouts = {
+      create = "10m"
+    }
+  }
+
+  assert {
+    condition     = azapi_resource.this.retry.interval_seconds == 10
+    error_message = "The retry configuration must be applied to the Activity Log Alert."
+  }
+
+  assert {
+    condition     = azapi_resource.this.timeouts[0].create == "10m"
+    error_message = "The timeout configuration must be applied to the Activity Log Alert."
+  }
+}
+
 run "serializes_any_of_conditions" {
   command = plan
 
