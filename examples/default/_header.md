@@ -1,3 +1,4 @@
 # Default example
 
-This deploys the module in its simplest form.
+This example creates a resource group with AzAPI and deploys an Activity Log
+Alert that matches administrative events in that resource group.
