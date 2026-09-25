@@ -37,6 +37,8 @@ or more leaf conditions with the same requirements.
 DESCRIPTION
 
   validation {
+    # Keep this validation aligned with the Activity Log Alert ARM condition
+    # serialization in main.tf.
     condition = length(var.condition.all_of) > 0 && alltrue([
       for condition in var.condition.all_of :
       length(condition.any_of) > 0 ? (
