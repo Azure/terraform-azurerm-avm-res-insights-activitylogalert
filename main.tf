@@ -60,10 +60,10 @@ resource "azapi_resource" "this" {
   ignore_body_changes    = length(var.ignore_body_changes.insights_activity_log_alerts) > 0 ? var.ignore_body_changes.insights_activity_log_alerts : null
   response_export_values = []
   retry                  = var.retry
-  create_headers         = { "User-Agent" = local.avm_azapi_header }
-  read_headers           = { "User-Agent" = local.avm_azapi_header }
-  update_headers         = { "User-Agent" = local.avm_azapi_header }
-  delete_headers         = { "User-Agent" = local.avm_azapi_header }
+  create_headers         = local.avm_azapi_request_headers
+  read_headers           = local.avm_azapi_request_headers
+  update_headers         = local.avm_azapi_request_headers
+  delete_headers         = local.avm_azapi_request_headers
 
   dynamic "timeouts" {
     for_each = var.timeouts == null ? [] : [var.timeouts]
@@ -88,10 +88,10 @@ resource "azapi_resource" "lock" {
   ignore_body_changes    = length(var.ignore_body_changes.authorization_locks) > 0 ? var.ignore_body_changes.authorization_locks : null
   response_export_values = []
   retry                  = var.retry
-  create_headers         = { "User-Agent" = local.avm_azapi_header }
-  read_headers           = { "User-Agent" = local.avm_azapi_header }
-  update_headers         = { "User-Agent" = local.avm_azapi_header }
-  delete_headers         = { "User-Agent" = local.avm_azapi_header }
+  create_headers         = local.avm_azapi_request_headers
+  read_headers           = local.avm_azapi_request_headers
+  update_headers         = local.avm_azapi_request_headers
+  delete_headers         = local.avm_azapi_request_headers
 
   dynamic "timeouts" {
     for_each = var.timeouts == null ? [] : [var.timeouts]
@@ -116,10 +116,10 @@ resource "azapi_resource" "role_assignments" {
   ignore_body_changes    = length(var.ignore_body_changes.authorization_role_assignments) > 0 ? var.ignore_body_changes.authorization_role_assignments : null
   response_export_values = []
   retry                  = var.retry
-  create_headers         = { "User-Agent" = local.avm_azapi_header }
-  read_headers           = { "User-Agent" = local.avm_azapi_header }
-  update_headers         = { "User-Agent" = local.avm_azapi_header }
-  delete_headers         = { "User-Agent" = local.avm_azapi_header }
+  create_headers         = local.avm_azapi_request_headers
+  read_headers           = local.avm_azapi_request_headers
+  update_headers         = local.avm_azapi_request_headers
+  delete_headers         = local.avm_azapi_request_headers
 
   dynamic "timeouts" {
     for_each = var.timeouts == null ? [] : [var.timeouts]

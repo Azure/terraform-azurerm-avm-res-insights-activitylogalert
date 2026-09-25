@@ -51,5 +51,7 @@ locals {
     avm_module_version = one(data.modtm_module_source.telemetry).module_version
   })
 
-  avm_azapi_header = join(" ", [for key, value in local.avm_azapi_headers : "${key}=${value}"])
+  avm_azapi_request_headers = {
+    "User-Agent" = join(" ", [for key, value in local.avm_azapi_headers : "${key}=${value}"])
+  }
 }
