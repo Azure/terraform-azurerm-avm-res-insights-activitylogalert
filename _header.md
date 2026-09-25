@@ -1,3 +1,5 @@
-# terraform-azurerm-avm-template
+# Activity Log Alert
 
-This is a template repo for Terraform Azure Verified Modules.
+This module deploys a resource-group-scoped Azure Activity Log Alert using
+AzAPI. The alert evaluates activity events for the supplied scopes and sends
+matching events to configured Action Groups.

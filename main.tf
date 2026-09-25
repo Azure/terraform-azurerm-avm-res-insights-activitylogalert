@@ -1,30 +1,133 @@
-# TODO: Replace this dummy resource azurerm_resource_group.TODO with your module resource
-resource "azurerm_resource_group" "TODO" {
-  location = var.location
-  name     = var.name # calling code must supply the name
-  tags     = var.tags
+module "avm_interfaces" {
+  source  = "Azure/avm-utl-interfaces/azure"
+  version = "~> 0.6"
+
+  lock                          = var.lock
+  lock_scope                    = azapi_resource.this.id
+  role_assignments              = var.role_assignments
+  role_assignment_definition_scope = azapi_resource.this.id
 }
 
-# required AVM resources interfaces
-resource "azurerm_management_lock" "this" {
-  count = var.lock != null ? 1 : 0
+resource "azapi_resource" "this" {
+  type      = var.resource_types.insights_activity_log_alerts
+  name      = var.name
+  parent_id = var.parent_id
+  location  = var.location
+  tags      = var.tags
 
-  lock_level = var.lock.kind
-  name       = coalesce(var.lock.name, "lock-${var.lock.kind}")
-  scope      = azurerm_resource_group.TODO.id # TODO: Replace with your azurerm resource name
-  notes      = var.lock.kind == "CanNotDelete" ? "Cannot delete the resource or its child resources." : "Cannot delete or modify the resource or its child resources."
+  body = {
+    properties = {
+      actions = {
+        actionGroups = [
+          for action_group in var.action_groups : merge(
+            {
+              actionGroupId = action_group.action_group_id
+            },
+            action_group.webhook_properties == null ? {} : {
+              webhookProperties = action_group.webhook_properties
+            }
+          )
+        ]
+      }
+      condition = {
+        allOf = [
+          for condition in var.condition.all_of : merge(
+            length(condition.any_of) > 0 ? {
+              anyOf = [
+                for any_of_condition in condition.any_of : merge(
+                  {
+                    field = any_of_condition.field
+                  },
+                  any_of_condition.equals == null ? {} : { equals = any_of_condition.equals },
+                  length(any_of_condition.contains_any) == 0 ? {} : { containsAny = any_of_condition.contains_any }
+                )
+              ]
+            } : {
+              field = condition.field
+            },
+            condition.equals == null ? {} : { equals = condition.equals },
+            length(condition.contains_any) == 0 ? {} : { containsAny = condition.contains_any }
+          )
+        ]
+      }
+      description = var.description
+      enabled     = var.enabled
+      scopes      = var.scopes
+    }
+  }
+
+  ignore_body_changes    = length(var.ignore_body_changes.insights_activity_log_alerts) > 0 ? var.ignore_body_changes.insights_activity_log_alerts : null
+  response_export_values = []
+  retry                  = var.retry
+  create_headers         = { "User-Agent" = local.avm_azapi_header }
+  read_headers           = { "User-Agent" = local.avm_azapi_header }
+  update_headers         = { "User-Agent" = local.avm_azapi_header }
+  delete_headers         = { "User-Agent" = local.avm_azapi_header }
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
 }
 
-resource "azurerm_role_assignment" "this" {
-  for_each = var.role_assignments
+resource "azapi_resource" "lock" {
+  count = var.lock == null ? 0 : 1
 
-  principal_id                           = each.value.principal_id
-  scope                                  = azurerm_resource_group.TODO.id # TODO: Replace this dummy resource azurerm_resource_group.TODO with your module resource
-  condition                              = each.value.condition
-  condition_version                      = each.value.condition_version
-  delegated_managed_identity_resource_id = each.value.delegated_managed_identity_resource_id
-  principal_type                         = each.value.principal_type
-  role_definition_id                     = strcontains(lower(each.value.role_definition_id_or_name), lower(local.role_definition_resource_substring)) ? each.value.role_definition_id_or_name : null
-  role_definition_name                   = strcontains(lower(each.value.role_definition_id_or_name), lower(local.role_definition_resource_substring)) ? null : each.value.role_definition_id_or_name
-  skip_service_principal_aad_check       = each.value.skip_service_principal_aad_check
+  type      = var.resource_types.authorization_locks
+  name      = module.avm_interfaces.lock_azapi.name
+  parent_id = module.avm_interfaces.lock_azapi.parent_id
+  body      = module.avm_interfaces.lock_azapi.body
+
+  ignore_body_changes    = length(var.ignore_body_changes.authorization_locks) > 0 ? var.ignore_body_changes.authorization_locks : null
+  response_export_values = []
+  retry                  = var.retry
+  create_headers         = { "User-Agent" = local.avm_azapi_header }
+  read_headers           = { "User-Agent" = local.avm_azapi_header }
+  update_headers         = { "User-Agent" = local.avm_azapi_header }
+  delete_headers         = { "User-Agent" = local.avm_azapi_header }
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
+}
+
+resource "azapi_resource" "role_assignments" {
+  for_each = module.avm_interfaces.role_assignments_azapi
+
+  type      = var.resource_types.authorization_role_assignments
+  name      = each.value.name
+  parent_id = each.value.parent_id
+  body      = each.value.body
+
+  ignore_body_changes    = length(var.ignore_body_changes.authorization_role_assignments) > 0 ? var.ignore_body_changes.authorization_role_assignments : null
+  response_export_values = []
+  retry                  = var.retry
+  create_headers         = { "User-Agent" = local.avm_azapi_header }
+  read_headers           = { "User-Agent" = local.avm_azapi_header }
+  update_headers         = { "User-Agent" = local.avm_azapi_header }
+  delete_headers         = { "User-Agent" = local.avm_azapi_header }
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
 }
