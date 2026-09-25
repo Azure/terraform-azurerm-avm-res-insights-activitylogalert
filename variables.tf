@@ -104,7 +104,7 @@ variable "location" {
   type        = string
   default     = "global"
   nullable    = false
-  description = "The Azure location of the Activity Log Alert. Supported values are `global`, `westeurope`, and `northeurope`."
+  description = "The Azure location of the Activity Log Alert. The `2020-10-01` ARM API supports `global`, `westeurope`, and `northeurope`."
 
   validation {
     condition     = contains(["global", "westeurope", "northeurope"], lower(var.location))
@@ -212,8 +212,9 @@ variable "ignore_body_changes" {
   nullable    = false
   description = <<DESCRIPTION
 Body-relative dot-notation paths ignored by the AzAPI provider for each
-resource. Ignored configuration is not sent to Azure until the path is removed,
-and changes take effect only after apply.
+resource, for example `properties.description`. Ignored configuration is not
+sent to Azure until the path is removed, and changes take effect only after
+apply.
 
 - `insights_activity_log_alerts` - Paths ignored on the Activity Log Alert.
 - `authorization_locks` - Paths ignored on management locks.
