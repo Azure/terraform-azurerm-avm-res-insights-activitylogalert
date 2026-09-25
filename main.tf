@@ -2,9 +2,9 @@ module "avm_interfaces" {
   source  = "Azure/avm-utl-interfaces/azure"
   version = "~> 0.6"
 
-  lock                          = var.lock
-  lock_scope                    = azapi_resource.this.id
-  role_assignments              = var.role_assignments
+  lock                             = var.lock
+  lock_scope                       = azapi_resource.this.id
+  role_assignments                 = var.role_assignments
   role_assignment_definition_scope = azapi_resource.this.id
 }
 

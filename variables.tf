@@ -28,7 +28,7 @@ variable "condition" {
       })), [])
     }))
   })
-  nullable = false
+  nullable    = false
   description = <<DESCRIPTION
 The conditions that activate the Activity Log Alert. Each entry in `all_of` is
 either a leaf condition or an `any_of` group. A leaf condition requires `field`
