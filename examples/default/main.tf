@@ -1,66 +1,47 @@
-terraform {
-  required_version = "~> 1.5"
+data "azapi_client_config" "this" {}
 
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 4.21"
-    }
-    modtm = {
-      source  = "azure/modtm"
-      version = "~> 0.3"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.5"
+resource "terraform_data" "name" {}
+
+resource "azapi_resource" "resource_group" {
+  location               = var.location
+  name                   = "rg-activitylogalert-${substr(sha256(terraform_data.name.id), 0, 12)}"
+  parent_id              = "/subscriptions/${data.azapi_client_config.this.subscription_id}"
+  type                   = var.resource_types.resources_resource_groups
+  body                   = {}
+  ignore_body_changes    = length(var.ignore_body_changes.resources_resource_groups) > 0 ? var.ignore_body_changes.resources_resource_groups : null
+  response_export_values = []
+  retry                  = var.retry
+  tags                   = var.tags
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
     }
   }
 }
 
-provider "azurerm" {
-  features {}
-}
-
-## Section to provide a random Azure region for the resource group
-# This allows us to randomize the region for the resource group.
-module "regions" {
-  source  = "Azure/avm-utl-regions/azurerm"
-  version = "~> 0.1"
-
-  enable_telemetry = var.enable_telemetry
-}
-
-# This allows us to randomize the region for the resource group.
-resource "random_integer" "region_index" {
-  max = length(module.regions.regions) - 1
-  min = 0
-}
-
-## End of section to provide a random Azure region for the resource group
-
-# This ensures we have unique CAF compliant names for our resources.
-module "naming" {
-  source  = "Azure/naming/azurerm"
-  version = "~> 0.3"
-}
-
-# This is required for resource modules
-resource "azurerm_resource_group" "this" {
-  location = module.regions.regions[random_integer.region_index.result].name
-  name     = module.naming.resource_group.name_unique
-}
-
-# This is the module call
-# Do not specify location here due to the randomization above.
-# Leaving location as `null` will cause the module to use the resource group location
-# with a data source.
-module "test" {
+module "this" {
   source = "../../"
 
-  # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  # ...
-  location            = azurerm_resource_group.this.location
-  name                = "TODO" # TODO update with module.naming.<RESOURCE_TYPE>.name_unique
-  resource_group_name = azurerm_resource_group.this.name
-  enable_telemetry    = var.enable_telemetry # see variables.tf
+  condition = {
+    all_of = [{
+      field  = "category"
+      equals = "Administrative"
+    }]
+  }
+  location            = var.location
+  name                = "ala-${substr(sha256(terraform_data.name.id), 0, 12)}"
+  parent_id           = azapi_resource.resource_group.id
+  scopes              = [azapi_resource.resource_group.id]
+  enable_telemetry    = var.enable_telemetry
+  ignore_body_changes = var.ignore_body_changes.insights_activity_log_alerts
+  resource_types      = var.resource_types.insights_activity_log_alerts
+  retry               = var.retry
+  tags                = var.tags
+  timeouts            = var.timeouts
 }
