@@ -1,6 +1,6 @@
 variable "location" {
   type        = string
-  default     = "westeurope"
+  default     = "northeurope"
   description = "The Azure region for supporting resources and module telemetry."
   nullable    = false
 }

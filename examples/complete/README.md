@@ -174,7 +174,7 @@ Description: The Azure region for supporting resources and module telemetry.
 
 Type: `string`
 
-Default: `"westeurope"`
+Default: `"northeurope"`
 
 ### <a name="input_resource_types"></a> [resource\_types](#input\_resource\_types)
 
