@@ -35,7 +35,8 @@ resource "azapi_resource" "resource_group" {
 }
 
 module "this" {
-  source = "../../"
+  source    = "../../"
+  providers = { modtm = modtm }
 
   condition = {
     all_of = [{
@@ -64,6 +65,8 @@ The following requirements are needed by this module:
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
+
+- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
 
 ## Resources
 
