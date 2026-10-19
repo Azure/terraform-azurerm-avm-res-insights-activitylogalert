@@ -1,10 +1,3 @@
-variable "location" {
-  type        = string
-  default     = "northeurope"
-  description = "The Azure region for supporting resources and module telemetry."
-  nullable    = false
-}
-
 variable "enable_telemetry" {
   type        = bool
   default     = true
@@ -37,6 +30,13 @@ Body-relative dot-notation paths ignored after apply. Ignored configuration is n
 - `insights_activity_log_alerts.authorization_locks` - Lock paths.
 - `insights_activity_log_alerts.authorization_role_assignments` - Role assignment paths.
 DESCRIPTION
+  nullable    = false
+}
+
+variable "location" {
+  type        = string
+  default     = "northeurope"
+  description = "The Azure region for supporting resources and module telemetry."
   nullable    = false
 }
 
