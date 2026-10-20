@@ -50,6 +50,9 @@ resource "azapi_resource" "identity" {
 
 module "this" {
   source = "../../"
+  providers = {
+    azapi = azapi
+  }
 
   condition = {
     all_of = [
