@@ -26,8 +26,10 @@ resource "azapi_resource" "resource_group" {
 }
 
 module "this" {
-  source    = "../../"
-  providers = { modtm = modtm }
+  source = "../../"
+  providers = {
+    azapi = azapi
+  }
 
   condition = {
     all_of = [{

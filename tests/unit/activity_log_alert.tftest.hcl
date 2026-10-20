@@ -25,15 +25,6 @@ mock_provider "azapi" {
   }
 }
 
-mock_provider "modtm" {
-  mock_data "modtm_module_source" {
-    defaults = {
-      module_source  = "registry.terraform.io/Azure/avm-res-insights-activitylogalert/azurerm"
-      module_version = "0.0.0"
-    }
-  }
-}
-
 mock_provider "random" {
   mock_resource "random_uuid" {
     defaults = {
@@ -99,7 +90,6 @@ run "creates_activity_log_alert" {
   }
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -128,7 +118,6 @@ run "serializes_service_health_conditions" {
   }
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -179,7 +168,6 @@ run "serializes_mixed_resource_health_conditions" {
   }
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -220,7 +208,6 @@ run "serializes_contains_any_conditions" {
   }
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -255,7 +242,6 @@ run "serializes_action_groups" {
   }
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -282,7 +268,6 @@ run "serializes_optional_properties" {
   }
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -369,7 +354,6 @@ run "creates_optional_interfaces_and_controls" {
   }
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -399,7 +383,6 @@ run "honors_explicit_interface_names" {
   }
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -426,7 +409,6 @@ run "enables_telemetry" {
   }
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -442,7 +424,6 @@ run "rejects_invalid_parent_id" {
   expect_failures = [var.parent_id]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -458,7 +439,6 @@ run "rejects_unsupported_resource_location" {
   expect_failures = [var.resource_location]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -474,7 +454,6 @@ run "rejects_empty_scopes" {
   expect_failures = [var.scopes]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -492,7 +471,6 @@ run "rejects_invalid_action_group_id" {
   expect_failures = [var.action_groups]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -508,7 +486,6 @@ run "rejects_empty_conditions" {
   expect_failures = [var.condition]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -524,7 +501,6 @@ run "rejects_leaf_without_field" {
   expect_failures = [var.condition]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -540,7 +516,6 @@ run "rejects_blank_field" {
   expect_failures = [var.condition]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -556,7 +531,6 @@ run "rejects_leaf_without_operator" {
   expect_failures = [var.condition]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -574,7 +548,6 @@ run "rejects_leaf_with_both_operators" {
   expect_failures = [var.condition]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -590,7 +563,6 @@ run "rejects_empty_any_of" {
   expect_failures = [var.condition]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -612,7 +584,6 @@ run "rejects_group_with_leaf_properties" {
   expect_failures = [var.condition]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -628,7 +599,6 @@ run "rejects_any_of_without_operator" {
   expect_failures = [var.condition]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -648,7 +618,6 @@ run "rejects_any_of_with_both_operators" {
   expect_failures = [var.condition]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -666,7 +635,6 @@ run "rejects_null_any_of_field" {
   expect_failures = [var.condition]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -682,7 +650,6 @@ run "rejects_invalid_lock" {
   expect_failures = [var.lock]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
@@ -704,7 +671,6 @@ run "rejects_invalid_delegated_identity" {
   expect_failures = [var.role_assignments]
   providers = {
     azapi     = azapi
-    modtm     = modtm
     random    = random
     terraform = terraform
   }
