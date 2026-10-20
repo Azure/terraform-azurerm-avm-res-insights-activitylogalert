@@ -36,9 +36,6 @@ resource "azapi_resource" "resource_group" {
 
 module "this" {
   source = "../../"
-  providers = {
-    azapi = azapi
-  }
 
   condition = {
     all_of = [{
