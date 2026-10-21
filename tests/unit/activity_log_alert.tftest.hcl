@@ -7,8 +7,9 @@ mock_provider "azapi" {
 
   mock_data "azapi_client_config" {
     defaults = {
-      subscription_id = "00000000-0000-0000-0000-000000000000"
-      tenant_id       = "00000000-0000-0000-0000-000000000001"
+      subscription_id          = "00000000-0000-0000-0000-000000000000"
+      tenant_id                = "00000000-0000-0000-0000-000000000001"
+      subscription_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000"
     }
   }
 
@@ -24,15 +25,6 @@ mock_provider "azapi" {
   }
 }
 
-mock_provider "modtm" {
-  mock_data "modtm_module_source" {
-    defaults = {
-      module_source  = "registry.terraform.io/Azure/avm-res-insights-activitylogalert/azurerm"
-      module_version = "0.0.0"
-    }
-  }
-}
-
 mock_provider "random" {
   mock_resource "random_uuid" {
     defaults = {
@@ -40,6 +32,8 @@ mock_provider "random" {
     }
   }
 }
+
+mock_provider "terraform" {}
 
 variables {
   location         = "westeurope"
@@ -91,8 +85,13 @@ run "creates_activity_log_alert" {
   }
 
   assert {
-    condition     = length(modtm_telemetry.telemetry) == 0 && length(random_uuid.telemetry) == 0
+    condition     = length(azapi_resource.telemetry) == 0 && length(terraform_data.telemetry) == 0
     error_message = "Opting out must disable telemetry."
+  }
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
   }
 }
 
@@ -116,6 +115,11 @@ run "serializes_service_health_conditions" {
       ]
     })
     error_message = "Service Health conditions must retain their field names and values."
+  }
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
   }
 }
 
@@ -162,6 +166,11 @@ run "serializes_mixed_resource_health_conditions" {
     })
     error_message = "Leaf conditions and multiple anyOf groups must coexist without null fields or type coercion."
   }
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "serializes_contains_any_conditions" {
@@ -197,6 +206,11 @@ run "serializes_contains_any_conditions" {
     })
     error_message = "Both leaf and nested containsAny operators must serialize as arrays."
   }
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "serializes_action_groups" {
@@ -226,6 +240,11 @@ run "serializes_action_groups" {
     ])
     error_message = "Action groups must retain stable map ordering and omit unspecified webhook properties."
   }
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "serializes_optional_properties" {
@@ -246,6 +265,11 @@ run "serializes_optional_properties" {
   assert {
     condition     = azapi_resource.this.location == "northeurope" && azapi_resource.this.tags.environment == "test"
     error_message = "Resource residency and tags must be configurable independently of telemetry."
+  }
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
   }
 }
 
@@ -317,6 +341,22 @@ run "creates_optional_interfaces_and_controls" {
     ])
     error_message = "All owned AzAPI resources must receive retry and operation timeouts."
   }
+
+  assert {
+    condition = alltrue([
+      for resource in [azapi_resource.this, azapi_resource.lock[0], azapi_resource.role_assignments["reader"]] :
+      alltrue([
+        for headers in [resource.create_headers, resource.read_headers, resource.update_headers, resource.delete_headers] :
+        !contains(keys(coalesce(headers, {})), "User-Agent")
+      ])
+    ])
+    error_message = "Owned resources must not configure retired per-resource User-Agent telemetry."
+  }
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "honors_explicit_interface_names" {
@@ -341,6 +381,11 @@ run "honors_explicit_interface_names" {
     condition     = azapi_resource.lock[0].name == "explicit-lock" && azapi_resource.role_assignments["reader"].name == "22222222-2222-2222-2222-222222222222"
     error_message = "Explicit lock and role assignment names must be honored."
   }
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "enables_telemetry" {
@@ -351,8 +396,21 @@ run "enables_telemetry" {
   }
 
   assert {
-    condition     = length(modtm_telemetry.telemetry) == 1 && modtm_telemetry.telemetry[0].tags.location == "westeurope"
+    condition     = length(azapi_resource.telemetry) == 1 && azapi_resource.telemetry[0].location == "westeurope"
     error_message = "Enabled telemetry must use the regional location, not the global resource location."
+  }
+
+  assert {
+    condition = alltrue([
+      for headers in [azapi_resource.this.create_headers, azapi_resource.this.read_headers, azapi_resource.this.update_headers, azapi_resource.this.delete_headers] :
+      !contains(keys(coalesce(headers, {})), "User-Agent")
+    ])
+    error_message = "Deployment telemetry must not reintroduce custom User-Agent telemetry on the alert."
+  }
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
   }
 }
 
@@ -364,6 +422,11 @@ run "rejects_invalid_parent_id" {
   }
 
   expect_failures = [var.parent_id]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_unsupported_resource_location" {
@@ -374,6 +437,11 @@ run "rejects_unsupported_resource_location" {
   }
 
   expect_failures = [var.resource_location]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_empty_scopes" {
@@ -384,6 +452,11 @@ run "rejects_empty_scopes" {
   }
 
   expect_failures = [var.scopes]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_invalid_action_group_id" {
@@ -396,6 +469,11 @@ run "rejects_invalid_action_group_id" {
   }
 
   expect_failures = [var.action_groups]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_empty_conditions" {
@@ -406,6 +484,11 @@ run "rejects_empty_conditions" {
   }
 
   expect_failures = [var.condition]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_leaf_without_field" {
@@ -416,6 +499,11 @@ run "rejects_leaf_without_field" {
   }
 
   expect_failures = [var.condition]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_blank_field" {
@@ -426,6 +514,11 @@ run "rejects_blank_field" {
   }
 
   expect_failures = [var.condition]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_leaf_without_operator" {
@@ -436,6 +529,11 @@ run "rejects_leaf_without_operator" {
   }
 
   expect_failures = [var.condition]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_leaf_with_both_operators" {
@@ -448,6 +546,11 @@ run "rejects_leaf_with_both_operators" {
   }
 
   expect_failures = [var.condition]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_empty_any_of" {
@@ -458,6 +561,11 @@ run "rejects_empty_any_of" {
   }
 
   expect_failures = [var.condition]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_group_with_leaf_properties" {
@@ -474,6 +582,11 @@ run "rejects_group_with_leaf_properties" {
   }
 
   expect_failures = [var.condition]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_any_of_without_operator" {
@@ -484,6 +597,11 @@ run "rejects_any_of_without_operator" {
   }
 
   expect_failures = [var.condition]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_any_of_with_both_operators" {
@@ -498,6 +616,11 @@ run "rejects_any_of_with_both_operators" {
   }
 
   expect_failures = [var.condition]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_null_any_of_field" {
@@ -510,6 +633,11 @@ run "rejects_null_any_of_field" {
   }
 
   expect_failures = [var.condition]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_invalid_lock" {
@@ -520,6 +648,11 @@ run "rejects_invalid_lock" {
   }
 
   expect_failures = [var.lock]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
 
 run "rejects_invalid_delegated_identity" {
@@ -536,4 +669,9 @@ run "rejects_invalid_delegated_identity" {
   }
 
   expect_failures = [var.role_assignments]
+  providers = {
+    azapi     = azapi
+    random    = random
+    terraform = terraform
+  }
 }
