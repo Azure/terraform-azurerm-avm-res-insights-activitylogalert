@@ -34,12 +34,12 @@ module "this" {
       equals = "Administrative"
     }]
   }
-  location            = var.location
   name                = "ala-${substr(sha256(terraform_data.name.id), 0, 12)}"
   parent_id           = azapi_resource.resource_group.id
   scopes              = [azapi_resource.resource_group.id]
   enable_telemetry    = var.enable_telemetry
   ignore_body_changes = var.ignore_body_changes.insights_activity_log_alerts
+  location            = var.location
   resource_types      = var.resource_types.insights_activity_log_alerts
   retry               = var.retry
   tags                = var.tags
