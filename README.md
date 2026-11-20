@@ -59,12 +59,6 @@ object({
   })
 ```
 
-### <a name="input_location"></a> [location](#input\_location)
-
-Description: The Azure region used for module telemetry. Use `resource_location` to choose the Activity Log Alert's location.
-
-Type: `string`
-
 ### <a name="input_name"></a> [name](#input\_name)
 
 Description: The name of the Activity Log Alert.
@@ -149,6 +143,14 @@ object({
 ```
 
 Default: `{}`
+
+### <a name="input_location"></a> [location](#input\_location)
+
+Description: The Azure region used for module telemetry. Use `resource_location` to choose the Activity Log Alert's location.
+
+Type: `string`
+
+Default: `null`
 
 ### <a name="input_lock"></a> [lock](#input\_lock)
 
@@ -298,7 +300,7 @@ The following Modules are called:
 
 Source: Azure/avm-utl-interfaces/azure
 
-Version: 0.9.0
+Version: 0.10.0
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection
