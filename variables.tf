@@ -37,12 +37,6 @@ DESCRIPTION
   }
 }
 
-variable "location" {
-  type        = string
-  description = "The Azure region used for module telemetry. Use `resource_location` to choose the Activity Log Alert's location."
-  nullable    = false
-}
-
 variable "name" {
   type        = string
   description = "The name of the Activity Log Alert."
@@ -130,6 +124,17 @@ Non-empty lists require Terraform 1.11 or later. Individual list items cannot be
 - `authorization_role_assignments` - Paths ignored on role assignments.
 DESCRIPTION
   nullable    = false
+}
+
+variable "location" {
+  type        = string
+  default     = null
+  description = "The Azure region used for module telemetry. Use `resource_location` to choose the Activity Log Alert's location."
+
+  validation {
+    condition     = !var.enable_telemetry || var.location != null
+    error_message = "The location must not be null when telemetry is enabled."
+  }
 }
 
 variable "lock" {

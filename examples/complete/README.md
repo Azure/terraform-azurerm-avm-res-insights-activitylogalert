@@ -78,7 +78,6 @@ module "this" {
       },
     ]
   }
-  location            = var.location
   name                = "ala-resource-health-${substr(sha256(terraform_data.name.id), 0, 12)}"
   parent_id           = azapi_resource.resource_group.id
   scopes              = [azapi_resource.resource_group.id]
@@ -86,6 +85,7 @@ module "this" {
   enable_telemetry    = var.enable_telemetry
   enabled             = false
   ignore_body_changes = var.ignore_body_changes.insights_activity_log_alerts
+  location            = var.location
   lock = {
     kind  = "ReadOnly"
     notes = "Protect the example alert from changes."
